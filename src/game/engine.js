@@ -262,7 +262,7 @@ export class Game {
     else if (brake) this.speed += BRAKING * dt;
     else this.speed += DECEL * dt;
 
-    this.offRoad = Math.abs(this.playerX) > 1.12;
+    this.offRoad = Math.abs(this.playerX) > 1.25;
     if (this.offRoad && this.speed > OFF_ROAD_LIMIT) this.speed += OFF_ROAD_DECEL * dt;
 
     this.speed = Math.max(0, Math.min(MAX_SPEED, this.speed));
