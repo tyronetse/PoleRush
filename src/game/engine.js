@@ -81,6 +81,7 @@ export class Game {
     this.bestLap = null;
     this.finalPos = null;
     this.shake = 0;
+    this.steerSmooth = 0;
     this.bgOffset = 0;
     this.offRoad = false;
     this.crashCooldown = 0;
@@ -237,15 +238,19 @@ export class Game {
   updatePlayer(dt, racing) {
     const speedPercent = this.speed / MAX_SPEED;
     const playerSegment = this.findSegment(this.position + PLAYER_Z);
-    const steer =
+    const steerTarget =
       (this.input.right || this.input.tRight ? 1 : 0) -
       (this.input.left || this.input.tLeft ? 1 : 0);
-    const dx = dt * 2.4 * speedPercent;
+    // Smooth the steering input so touch buttons feel analog, not binary.
+    // Ramps toward the target at 8 units/sec, killing twitchy overcorrection.
+    const maxDelta = 8 * dt;
+    this.steerSmooth += Math.max(-maxDelta, Math.min(maxDelta, steerTarget - this.steerSmooth));
+    const dx = dt * 2.2 * speedPercent;
 
     this.position = (this.position + this.speed * dt) % this.trackLength;
     this.playerTotal += this.speed * dt;
 
-    this.playerX += dx * steer;
+    this.playerX += dx * this.steerSmooth;
     this.playerX -= dx * speedPercent * playerSegment.curve * CENTRIFUGAL;
 
     const gas = this.input.up || this.input.tUp;
@@ -255,7 +260,7 @@ export class Game {
     else if (brake) this.speed += BRAKING * dt;
     else this.speed += DECEL * dt;
 
-    this.offRoad = Math.abs(this.playerX) > 1.08;
+    this.offRoad = Math.abs(this.playerX) > 1.12;
     if (this.offRoad && this.speed > OFF_ROAD_LIMIT) this.speed += OFF_ROAD_DECEL * dt;
 
     this.speed = Math.max(0, Math.min(MAX_SPEED, this.speed));
@@ -445,7 +450,7 @@ export class Game {
       const bounce = this.offRoad && this.speed > 1
         ? Math.sin(performance.now() / 40) * 3
         : Math.sin(performance.now() / 300) * 1.5;
-      const steerLean = ((this.input.right || this.input.tRight) ? 1 : 0) - ((this.input.left || this.input.tLeft) ? 1 : 0);
+      const steerLean = this.steerSmooth;
       drawCar(ctx, WIDTH / 2 + steerLean * 14, HEIGHT - 24 + bounce, WIDTH * 0.30, PLAYER_COLORS, {
         braking: this.input.down || this.input.tDown,
         flame: (this.input.up || this.input.tUp) && this.speed > MAX_SPEED * 0.5,
