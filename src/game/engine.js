@@ -245,7 +245,9 @@ export class Game {
     // Ramps toward the target at 8 units/sec, killing twitchy overcorrection.
     const maxDelta = 8 * dt;
     this.steerSmooth += Math.max(-maxDelta, Math.min(maxDelta, steerTarget - this.steerSmooth));
-    const dx = dt * 2.2 * speedPercent;
+    // Steering stays effective at low speed so you can recover from the grass
+    // instead of getting stuck crawling with no control.
+    const dx = dt * 2.2 * (0.35 + 0.65 * speedPercent);
 
     this.position = (this.position + this.speed * dt) % this.trackLength;
     this.playerTotal += this.speed * dt;
