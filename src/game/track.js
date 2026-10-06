@@ -15,8 +15,8 @@ export const MAX_SPEED = SEGMENT_LENGTH * 60; // world units / second
 export const ACCEL = MAX_SPEED / 5;
 export const BRAKING = -MAX_SPEED;
 export const DECEL = -MAX_SPEED / 5;
-export const OFF_ROAD_DECEL = -MAX_SPEED / 1.4;
-export const OFF_ROAD_LIMIT = MAX_SPEED / 4;
+export const OFF_ROAD_DECEL = -MAX_SPEED / 2.5;
+export const OFF_ROAD_LIMIT = MAX_SPEED / 2.2;
 export const CENTRIFUGAL = 0.15;
 
 export const COLORS = {
