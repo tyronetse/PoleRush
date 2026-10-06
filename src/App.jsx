@@ -38,6 +38,15 @@ export default function App() {
   const gameRef = useRef(null);
   const [hud, setHud] = useState(DEFAULT_HUD);
   const [touch] = useState(isTouchDevice);
+  const [portrait, setPortrait] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(orientation: portrait)').matches);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(orientation: portrait)');
+    const onChange = (e) => setPortrait(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     const game = new Game(canvasRef.current, (h) => setHud(h));
@@ -74,6 +83,10 @@ export default function App() {
         <button className="mute-btn" onClick={toggleMute} aria-label="mute">
           {hud.muted ? '🔇' : '🔊'}
         </button>
+
+        {touch && portrait && (
+          <div className="rotate-hint">⟳ ROTATE FOR FULL SCREEN</div>
+        )}
 
         {/* countdown */}
         {hud.mode === 'countdown' && (
